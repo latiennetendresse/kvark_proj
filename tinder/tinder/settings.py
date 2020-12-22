@@ -24,10 +24,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
+    'app.apps.AppConfig',    #Не работают стили, если поместить приложение в конец
 
     'allauth',
     'allauth.account',
-    'app.apps.AppConfig',
+    'allauth.socialaccount',
+
 ]
 
 MIDDLEWARE = [

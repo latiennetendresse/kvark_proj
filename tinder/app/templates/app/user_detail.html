@@ -4,7 +4,7 @@
 <div class="container">
 
   <div class="row">
-    <div class="col-sm-4">
+    <div class="col-sm-3">
 
       <h2>Welcome, {{ object.fio }}</h2>
     </div>
@@ -13,7 +13,7 @@
 {% if object == request.user %}
   <div class="col-sm-8">
     <a class="btn btn-primary" href="{% url 'users:update' %}" role="button">Edit profile</a>
-<!--    <a class="btn btn-primary" href="{% url 'account_email' %}" role="button">E-Mail</a>-->
+    <a class="btn btn-primary" href="{% url 'startup:add' %}" role="button">Add startup</a>
 
   </div>
 {% endif %}
