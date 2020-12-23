@@ -2,8 +2,7 @@
 {% block content %}
 <form class="form-horizontal" method="post" enctype="multipart/form-data">
 {% csrf_token %}
-
-{{ form.as_p }}
-<br><button type="submit" name="submit" value="Add startup" class="btn btn-primary" >Create</button>
+    {{ form.as_p }}
+<button type="submit" class="btn btn-primary"> Upload </button>
 </form>
 {% endblock content %}

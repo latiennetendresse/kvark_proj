@@ -2,13 +2,13 @@ from django.shortcuts import render
 from django.contrib.auth import get_user_model
 from django.views.generic import DetailView
 from .models import User, Startup, Slide
-from .forms import StartupForm, StartupImagesForm
+from .forms import *
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import RedirectView, UpdateView, CreateView
-
+from django.views.generic import RedirectView, UpdateView, CreateView, ListView
+from django.shortcuts import redirect
 
 User = get_user_model()
 
@@ -70,6 +70,18 @@ class StartupCreate(CreateView):
         form.instance.creator = self.request.user
         return super().form_valid(form)
 
+    # def add_startup_view(self, request):
+    #     form = StartupFullForm(request.POST or None, request.FILES or None)
+    #     files = request.FILES.getlist('images')
+    #     if form.is_valid():
+    #         creator = request.creator
+    #         name = form.cleaned_data['name']
+    #         startup_obj = Startup.objects.create(creator=creator, name=name)
+    #     for f in files:
+    #         Slide.objects.create(startup=startup_obj, image=f)
+    #     else:
+    #         print('Form invalid')
+
 
 startup_create_view = StartupCreate.as_view()
 
@@ -78,7 +90,19 @@ class StartupCreateImage(CreateView):
     model = Slide
     form_class = StartupImagesForm
     template_name = 'app/slide_form.html'
-    success_url = '/'
+    success_url = '/startups/'
+
+    def post(self, request, *args, **kwargs):
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        files = request.FILES.getlist('images')
+        if form.is_valid():
+            for f in files:
+                instance = Slide(image=f)
+                instance.save()
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
 
 
 startup_createimg_view = StartupCreateImage.as_view()
@@ -93,3 +117,8 @@ class StartupDetailView(DetailView):
 startup_detail_view = StartupDetailView.as_view()
 
 
+class StartupList(ListView):
+    model = Startup
+
+
+startup_list_view = StartupList.as_view()

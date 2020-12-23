@@ -3,7 +3,6 @@ from django import forms
 from .models import *
 
 
-
 class MyCustomSignupForm(SignupForm):
     first_name = forms.CharField(max_length=20, label='First name')
     last_name = forms.CharField(max_length=20, label='Last name')
@@ -29,7 +28,15 @@ class StartupForm(forms.ModelForm):
 
 
 class StartupImagesForm(forms.ModelForm):
+    images = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}))
     class Meta:
         model = Slide
-        exclude = ('startup',)
+        exclude = ('image',)
 
+
+# class StartupFullForm(StartupForm):
+#     images = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}))
+#
+#     class Meta(StartupForm.Meta):
+#         fields = StartupForm.Meta.fields + ('images',)
+#

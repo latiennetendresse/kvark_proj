@@ -25,7 +25,7 @@
       <strong>Menu:</strong>
       <ul>
         {% if user.is_authenticated %}
-        <li><a href="{% url 'startup:add' %}">View startups</a></li>
+        <li><a href="{% url 'startup:list-startup' %}">View startups</a></li>
         <li><a href="{% url 'account_login' %}">My profile</a></li>
         <li><a href="{% url 'account_logout' %}">Sign Out</a></li>
         {% else %}

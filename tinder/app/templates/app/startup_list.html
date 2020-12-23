@@ -1,0 +1,18 @@
+{% extends "account/base.html" %}
+{% block content %}
+{% load static %}
+{% for item in object_list %}
+    <div class="media-body">
+        <div class="card-header">
+           <a href= "{{ item.name.get_absolute_url}}"> {{ item.name }}</a>
+        </div>
+        <p>
+            {{ item.email}}<br>
+            {{ item.phone}}<br>
+            {{ item.video}}<br>
+            {{ item.desc}}<br>
+        </p>
+    </div>
+
+{% endfor %}
+{% endblock content %}
