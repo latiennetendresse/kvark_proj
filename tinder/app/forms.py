@@ -1,6 +1,8 @@
 from allauth.account.forms import SignupForm
 from django import forms
-from .models import *
+from .models import Startup, Slide, User
+from allauth.account.adapter import get_adapter
+from allauth.account.utils import setup_user_email
 
 
 class MyCustomSignupForm(SignupForm):
@@ -10,13 +12,18 @@ class MyCustomSignupForm(SignupForm):
     name_of_company = forms.CharField(max_length=20, label='Назание организации', required=False)
 
     def save(self, request):
-        user = super().save(request)
+        adapter = get_adapter(request)
+        user = adapter.new_user(request)
+
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
         user.type = self.cleaned_data['type']
         user.name_of_company = self.cleaned_data['name_of_company']
 
-        user.save()
+        adapter.save_user(request, user, self)
+        self.custom_signup(request, user)
+
+        setup_user_email(request, user, [])
         return user
 
 
@@ -29,14 +36,7 @@ class StartupForm(forms.ModelForm):
 
 class StartupImagesForm(forms.ModelForm):
     images = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}))
+
     class Meta:
         model = Slide
-        exclude = ('image',)
-
-
-# class StartupFullForm(StartupForm):
-#     images = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}))
-#
-#     class Meta(StartupForm.Meta):
-#         fields = StartupForm.Meta.fields + ('images',)
-#
+        fields = ['images']

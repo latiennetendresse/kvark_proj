@@ -1,14 +1,15 @@
 from django.shortcuts import render
 from django.contrib.auth import get_user_model
 from django.views.generic import DetailView
-from .models import User, Startup, Slide
-from .forms import *
+from .models import Startup, Slide
+from .forms import StartupForm, StartupImagesForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import RedirectView, UpdateView, CreateView, ListView
-from django.shortcuts import redirect
+from django.http import HttpResponseRedirect
+
 
 User = get_user_model()
 
@@ -37,9 +38,6 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
     def get_success_url(self):
         return reverse('users:detail', kwargs={'username': self.request.user.username})
 
-    def get_object(self):
-        return User.objects.get(username=self.request.user.username)     #Без этого не работает!!!!!!!!
-
     def form_valid(self, form):
         messages.add_message(
             self.request, messages.INFO, _('Infos successfully updated')
@@ -66,21 +64,12 @@ class StartupCreate(CreateView):
     template_name = 'app/startup_form.html'
     success_url = '/add-image/'
 
+    def get_success_url(self):
+        return f"/startups/{self.object.id}/add-image/"
+
     def form_valid(self, form):
         form.instance.creator = self.request.user
         return super().form_valid(form)
-
-    # def add_startup_view(self, request):
-    #     form = StartupFullForm(request.POST or None, request.FILES or None)
-    #     files = request.FILES.getlist('images')
-    #     if form.is_valid():
-    #         creator = request.creator
-    #         name = form.cleaned_data['name']
-    #         startup_obj = Startup.objects.create(creator=creator, name=name)
-    #     for f in files:
-    #         Slide.objects.create(startup=startup_obj, image=f)
-    #     else:
-    #         print('Form invalid')
 
 
 startup_create_view = StartupCreate.as_view()
@@ -92,20 +81,29 @@ class StartupCreateImage(CreateView):
     template_name = 'app/slide_form.html'
     success_url = '/startups/'
 
+    def get_success_url(self):
+        return self.success_url
+
+    def form_valid(self, form):
+        self.object = None
+        return HttpResponseRedirect(self.get_success_url())
+
     def post(self, request, *args, **kwargs):
         form_class = self.get_form_class()
         form = self.get_form(form_class)
         files = request.FILES.getlist('images')
+        startup_id = int(kwargs["id"])
         if form.is_valid():
             for f in files:
-                instance = Slide(image=f)
+                instance = Slide(image=f, startup_id=startup_id)
                 instance.save()
+
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
 
 
-startup_createimg_view = StartupCreateImage.as_view()
+startup_create_img_view = StartupCreateImage.as_view()
 
 
 class StartupDetailView(DetailView):
